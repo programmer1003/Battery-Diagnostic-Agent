@@ -136,7 +136,7 @@ def analyze_battery_data(query: str, config: RunnableConfig) -> str:
 # ==========================================
 def get_langgraph_chain(ensemble_retriever):
     llm = ChatOpenAI(
-        openai_api_key="sk-84fa3d55140d4b47b5137cc6381f86e0",
+        openai_api_key=""YOUR_API_KEY_NAME"",
         openai_api_base="https://api.deepseek.com",
         model_name="deepseek-chat",
         temperature=0.1
