@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  # 1. 你的储物柜 (Redis)
+  redis_cache:
+    image: redis:5.0-alpine  # alpine 是极小体积的 Linux
+    ports:
+      - "6379:6379"
+    restart: always
+
+  # 2. 你的后厨 (FastAPI)
+  backend_api:
+    build: .                 # 告诉 docker 去当前目录找 Dockerfile 打包
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis_cache          # 绝杀：明确规定后厨必须等储物柜启动了才能启动！
+    environment:
+      - REDIS_HOST=redis_cache # 告诉 Python，Redis 的地址
