@@ -1,19 +1,38 @@
 version: '3.8'
 
 services:
-  # 1. 你的储物柜 (Redis)
+  # 1. 储物柜 (Redis)
   redis_cache:
-    image: redis:5.0-alpine  # alpine 是极小体积的 Linux
+    image: redis:5.0-alpine
     ports:
       - "6379:6379"
     restart: always
 
-  # 2. 你的后厨 (FastAPI)
+  # 2. 医生团队 (后端 FastAPI)
   backend_api:
-    build: .                 # 告诉 docker 去当前目录找 Dockerfile 打包
+    build: .
+    # 指定该容器作为后端运行
+    command: uvicorn api_main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     depends_on:
-      - redis_cache          # 绝杀：明确规定后厨必须等储物柜启动了才能启动！
+      - redis_cache
     environment:
-      - REDIS_HOST=redis_cache # 告诉 Python，Redis 的地址
+      - REDIS_HOST=redis_cache  # 让后端知道 Redis 容器的名字
+    env_file:
+      - .env                    # 🌟 极度重要：把 LangSmith 和大模型密钥挂载进去！
+
+  # 3. 护士前台 (前端 Streamlit)
+  frontend_web:
+    build: .
+    # 指定该容器作为前端运行
+    command: streamlit run main.py --server.address 0.0.0.0 --server.port 8501
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend_api             # 必须等后端启动后，前端再启动
+    environment:
+      # 🌟 绝杀：告诉前端，后端的地址是容器名 `backend_api`，而不是 127.0.0.1！
+      - API_BASE_URL=http://backend_api:8000
+    env_file:
+      - .env

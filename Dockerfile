@@ -1,19 +1,22 @@
-# 1. 选择一个包含 Python 环境的基础镜像 (瘦身版)
+# 1. 地基：轻量级 Python
 FROM python:3.9-slim
 
-# 2. 告诉容器，我们的工作目录叫 /app
+# 2. 设定工作目录
 WORKDIR /app
 
-# 3. 把你电脑当前文件夹里的所有代码，全抄到容器的 /app 里面
-COPY . /app
+# 3. 安装 C++ 编译环境 (ChromaDB 和一些底层计算库需要它)
+RUN apt-get update && apt-get install -y build-essential
 
-# 4. 安装你的各种库 (需要在同目录建一个 requirements.txt)
-# 针对 PyTorch，通常会指定专门的源来减小体积
-RUN pip install fastapi uvicorn pandas numpy redis langchain_openai langchain_community PyPDF2
-RUN pip install torch --index-url https://download.pytorch.org/whl/cpu 
+# 🌟 4. 绝杀防坑：必须先强制安装 CPU 版 PyTorch！
+# 提前占位，防止后续依赖自动下载庞大的 GPU 驱动版，把镜像体积从 2GB 压缩到几百MB
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
-# 5. 暴露 8000 端口
-EXPOSE 8000
+# 5. 拷贝依赖清单并安装业务库 (使用清华源提速)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-# 6. 容器启动时，执行你熟悉的那个命令！
-CMD ["uvicorn", "api_main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 6. 把项目所有代码拷进集装箱
+COPY . .
+
+# 7. 暴露后端和前端的端口
+EXPOSE 8000 8501
