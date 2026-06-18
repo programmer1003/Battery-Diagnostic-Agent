@@ -8,7 +8,7 @@
 2. **知识底座 (Advanced RAG)**：集成 ChromaDB 稠密向量与 BM25 稀疏检索，前置 LLM 意图重写，后置 BGE-Reranker 交叉编码器进行二次打分，解决电池垂直领域长尾生僻故障码召回精度低的问题。
 3. **物理引擎 (PyTorch)**：底层挂载自研 TF-GDC 时序异常检测模型，通过大模型工具调用 (Tool Calling) 动态提取滑动窗口 MSE 误差，为 Agent 提供硬核的跨模态物理数值先验。
 4. **网关与流式 (FastAPI & SSE)**：结合 Redis 缓存与 asyncio.to_thread 异步线程池剥离文件 I/O 阻塞；设计“状态播报+结果生成”的双段式 SSE 协议，化解大模型反复自省与前端文字闪烁撤回的体验冲突。
-5.**监控评测 (LangSmith & Ragas)**：全链路无感追踪 Agent 节点流转、工具延迟与 Token 消耗；底层挂载 Ragas 自动化盲测流水线，量化系统 Context Recall 与抗幻觉核心指标。
+5. **监控评测 (LangSmith & Ragas)**：全链路无感追踪 Agent 节点流转、工具延迟与 Token 消耗；底层挂载 Ragas 自动化盲测流水线，量化系统 Context Recall 与抗幻觉核心指标。
 
 ## 📸 系统监控与交互演示 (Demo)
 
